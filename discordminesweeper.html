@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Discord Minesweeper</title>
+  
+  <style>
+    .cell {
+      width: 24px;
+      height: 24px;
+      text-align: center;
+    }
+
+  body {
+    background: linear-gradient(to right, #02AAB0, #00CDAC); 
+  }
+
+  h1 {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    font-size: 48px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+
+  @keyframes pulsate {
+  0% {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  50% {
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  }
+  100% {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+}
+
+h1 {
+  animation: pulsate 1.5s ease-in-out infinite;
+}
+  </style>
+
+</head>
+
+<body>
+
+  <!-- Settings -->
+<div id="settings">
+
+  <label>Rows: 
+    <input type="number" id="rows" min="3" max="15" value="10">
+  </label>
+
+  <label>Cols:
+    <input type="number" id="cols" min="3" max="15" value="10"> 
+  </label>
+
+  <label>Bombs:
+    <input type="number" id="bombs" min="1" max="" value="15">
+  </label>
+
+  <button onclick="updateSettings()">Apply</button>
+
+</div>
+
+
+  <h1>Discord Minesweeper</h1>
+
+  <div id="board"></div>
+
+  <button onclick="initGame()">New Game</button>
+
+  <script>
+
+    const rowsInput = document.getElementById('rows');
+    const colsInput = document.getElementById('cols'); 
+    const bombsInput = document.getElementById('bombs');
+
+    let ROWS = 10;
+    let COLS = 10;
+    let BOMBS = 15;
+
+    const BOMB = '||💣||';
+    const FLAG = '||🚩||';  
+    const NUMS = ['||0️⃣||','||1️⃣||','||2️⃣||','||3️⃣||','||4️⃣||','||5️⃣||','||6️⃣||','||7️⃣||','||8️⃣||'];
+
+    let board;
+
+    function initGame() {
+      board = [];
+
+      // Initialize rows
+      for (let r = 0; r < ROWS; r++) {
+        board[r] = [];
+      }
+
+      // Place random bombs  
+      let bombsPlaced = 0;
+      while (bombsPlaced < BOMBS) {
+        let row = Math.floor(Math.random() * ROWS);
+        let col = Math.floor(Math.random() * COLS);
+        if (board[row][col] !== BOMB) {
+          board[row][col] = BOMB;
+          bombsPlaced++;
+        }
+      }
+
+      // Calculate numbers
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (board[r][c] !== BOMB) {
+            let count = countBombs(r, c);
+            board[r][c] = NUMS[count];
+          }
+        }
+      }
+
+      // Render board
+      renderBoard();
+
+    }
+
+    function countBombs(row, col) {
+
+  let count = 0;
+
+  for (let r = row - 1; r <= row + 1; r++) {
+    for (let c = col - 1; c <= col + 1; c++) {
+      
+      if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+        if (board[r][c] === BOMB) {
+          count++;
+        }
+      }
+
+    }
+  }
+
+  return count;
+
+}
+
+function renderBoard() {
+
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+
+  for (let r = 0; r < ROWS; r++) {
+    let rowEl = document.createElement('div');
+
+    for (let c = 0; c < COLS; c++) {
+      let cellEl = document.createElement('span');
+      cellEl.classList.add('cell');
+      cellEl.textContent = board[r][c];
+      rowEl.appendChild(cellEl);
+    }
+
+    boardEl.appendChild(rowEl);
+  }
+
+}
+function updateSettings() {
+  // maximum amount of bombs is the multiplication of rows and cols
+  
+  
+  // Get values and validate
+  let rows = parseInt(rowsInput.value);
+  rows = isNaN(rows) ? 10 : Math.min(Math.max(rows, 3), 15);
+  
+  let cols = parseInt(colsInput.value);
+  cols = isNaN(cols) ? 10 : Math.min(Math.max(cols, 3), 15);
+  
+  let maxBombs = rows * cols;
+  
+  let bombs = parseInt(bombsInput.value);
+  bombs = isNaN(bombs) ? 15 : Math.min(Math.max(bombs, 1), maxBombs); 
+  
+  bombsInput.setAttribute("max", maxBombs);
+
+  // Update global variables
+  ROWS = rows;
+  COLS = cols;
+  BOMBS = bombs;
+
+  // Restart game
+  initGame();
+
+}
+  </script>
+
+  <a href="index.html"><h2>Main Page</h2></a>
+
+</body>
+</html>
